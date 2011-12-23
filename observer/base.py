@@ -11,74 +11,7 @@ import time
 from logger import Logger
 
 
-class Observer(Logger):
-    """
-    >>> import tempfile, shutil, os
-    >>> dir = tempfile.mkdtemp()
-    
-    Watch for directory creation/deletion
-    =====================================
-    
-    >>> o = Observer(dir, '*', dirs=True)
-    >>> o.changes()
-    ([], [], [])
-    >>> os.mkdir(os.path.join(dir, 'test1'))
-    >>> created, changed, deleted = o.changes()
-    >>> len(created)
-    1
-    >>> len(deleted)
-    0
-    >>> created
-    ['test1']
-    
-    >>> os.mkdir(os.path.join(dir, 'test2'))
-    >>> created, changed, deleted = o.changes()
-    >>> len(created)
-    1
-    >>> len(deleted)
-    0
-    >>> created
-    ['test2']
-    
-    >>> os.mkdir(os.path.join(dir, 'test31'))
-    >>> os.mkdir(os.path.join(dir, 'test32'))
-    >>> created, changed, deleted = o.changes()
-    >>> len(created)
-    2
-    >>> len(deleted)
-    0
-    >>> created
-    ['test31', 'test32']
-    
-    >>> shutil.rmtree(os.path.join(dir, created[1]))
-    >>> created, changed, deleted = o.changes()
-    >>> len(created)
-    0
-    >>> len(deleted)
-    1
-    >>> deleted
-    ['test32']
-    
-    
-    Watch for file creation
-    =======================
-    
-    >>> filename = 'entries'
-    >>> o = Observer(dir, filename)
-    >>> o.changes()
-    ([], [], [])
-    >>> open(os.path.join(dir, filename), 'w').close()
-    >>> created, changed, deleted = o.changes()
-    >>> len(created)
-    1
-    >>> len(deleted)
-    0
-    >>> created[0] == filename
-    True
-    
-    >>> shutil.rmtree(dir)
-    """
-    
+class Observer(Logger):    
     _observers = []
     
     @classmethod
@@ -111,7 +44,7 @@ class Observer(Logger):
             self._check_type = os.path.isfile
         self.update()
         for entry in self.entries:
-            self.on_create(entry)
+            self.on_create(os.path.basename(entry))
     
     def _basename(self, path):
         return path[len(self.dir) + 1:]
@@ -141,6 +74,7 @@ class Observer(Logger):
     
     def update(self):
         self.entries = set(f for f in glob.glob(os.path.join(self.dir, self.pattern)) if self.check_entry(f))
+        self.log.debug('update:entries:%s', self.entries)
     
     def update_file_changes(self):
         self.checksums = dict((key, file_sha1(key).digest()) for key in self.entries)

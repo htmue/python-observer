@@ -23,7 +23,7 @@ class FileObserver(Observer):
         return self.filepattern.match(entry)
 
     def enqueue(self, entry):
-        self.queue.put(entry)
+        self.queue.put(os.path.join(self.dir, entry))
 
     def on_create(self, entry):
         self.log.debug('on_create: "%s"', entry)
@@ -60,7 +60,7 @@ class DirObserver(Observer):
 
     def on_create(self, entry):
         self.log.debug('on_create: "%s"', entry)
-        observer = DirObserver(entry, self.filepattern, None, self.queue)
+        observer = DirObserver(os.path.join(self.dir, entry), self.filepattern, None, self.queue)
         self.add_observer(observer)
         self.observers[entry] = observer
 
