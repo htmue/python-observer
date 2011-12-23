@@ -136,3 +136,11 @@ TODO
 * more tests
 
 Contributions are welcome!
+
+
+License
+-------
+
+This is free and unencumbered software released into the public domain.
+
+see [UNLICENSE](http://unlicense.org/)
