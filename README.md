@@ -40,6 +40,18 @@ Installation
 
     $ pip install -e git+https://github.com/htmue/python-observer#egg=observer
 
+On Mac OSX, install py-kqueue:
+
+    $ pip install py-kqueue==2.0.1
+
+And optionally, for Growl support in ```autorestart```:
+
+    $ pip install gntp==0.5.1
+
+On Linux:
+
+    $ pip install inotifyx==0.2.0
+
 
 Tests
 -----
