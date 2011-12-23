@@ -13,7 +13,7 @@ Run program and restart it on file changes in the directory tree:
 
     $ autorestart program args
 
-Print file changes to stdout:
+Print Python source code changes to stdout:
 
 ```python
 import pprint
@@ -33,6 +33,7 @@ class ChangesLogger(TreeObserver):
 
 ChangesLogger().loop()
 ```
+
 
 Installation
 ------------
