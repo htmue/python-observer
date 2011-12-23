@@ -10,6 +10,7 @@ import signal
 import subprocess
 import threading
 
+from observer.gitignore import GitIgnore
 from observer.tree import TreeObserver
 
 
@@ -31,7 +32,7 @@ class AutorestartObserver(TreeObserver):
         self._lock = threading.Lock()
         self.child = None
         self.args = args
-        super(AutorestartObserver, self).__init__(dir, filepattern, ignored_dirs_pattern(dir))
+        super(AutorestartObserver, self).__init__(dir, filepattern, GitIgnore(dir))
     
     @property
     def child(self):
@@ -62,32 +63,6 @@ class AutorestartObserver(TreeObserver):
                 '{}started: {}'.format('re' if restarted else '',
                 ' '.join(self.args)), 'in {}'.format(os.getcwd()),
             )
-
-
-def ignored_dirs_pattern(dir):
-    dirs = list(ignored_dirs(dir))
-    if dirs:
-        pattern = r'(%s)$' % '|'.join(dirs)
-        log.debug('ignored_dirs_pattern: %s', pattern)
-        return re.compile(pattern)
-
-def ignored_dirs(dir):
-    git_exclude = os.path.join(dir, '.git', 'info', 'exclude')
-    git_ignore = os.path.join(dir, '.gitignore')
-    for name in (git_exclude, git_ignore):
-        for ignore in ignored_dirs_from_file(dir, name):
-            log.debug('ignored_dirs:%s:%s', name, ignore)
-            yield ignore
-
-def ignored_dirs_from_file(dir, name):
-    dir_re = re.compile(r'/([^/]+)/?$')
-    if os.path.exists(name):
-        for line in open(name):
-            match = dir_re.match(line.strip())
-            if match:
-                ignore = os.path.join(dir, match.group(1))
-                if os.path.isdir(ignore):
-                    yield ignore
 
 #.............................................................................
 #   autorestart.py

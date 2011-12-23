@@ -56,7 +56,7 @@ class DirObserver(Observer):
 
     def check_entry(self, entry):
         if os.path.isdir(entry):
-             return self.ignore is None or not self.ignore.search(entry)
+             return self.ignore is None or not self.ignore(entry)
 
     def on_create(self, entry):
         self.log.debug('on_create: "%s"', entry)
