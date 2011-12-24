@@ -12,7 +12,7 @@ setup(
     description='Directory/file change observer',
     author='Hans-Thomas Mueller',
     author_email='htmue@mac.com',
-    url='https://github.com/htmue/python-observer/',
+    url='https://github.com/htmue/python-observer',
     packages=['observer'],
     scripts=['bin/autorestart'],
 )
