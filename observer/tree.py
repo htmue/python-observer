@@ -60,7 +60,7 @@ class DirObserver(Observer):
 
     def on_create(self, entry):
         self.log.debug('on_create: "%s"', entry)
-        observer = DirObserver(os.path.join(self.dir, entry), self.filepattern, None, self.queue)
+        observer = DirObserver(os.path.join(self.dir, entry), self.filepattern, self.ignore, self.queue)
         self.add_observer(observer)
         self.observers[entry] = observer
 
