@@ -133,6 +133,7 @@ TODO
 ----
 
 * make ```autorestart``` file pattern configurable
+* handle logging config
 * more tests
 
 Contributions are welcome!
