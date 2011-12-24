@@ -47,7 +47,7 @@ class AutorestartObserver(TreeObserver):
     def kill_child(self):
         child = self.child
         if child is not None:
-            child.send_signal(signal.SIGINT)
+            child.terminate()
             child.wait()
             child = None
     
