@@ -49,7 +49,7 @@ class AutorestartObserver(TreeObserver):
         if child is not None:
             child.terminate()
             child.wait()
-            child = None
+            self.child = None
     
     def restart_child(self):
         self.kill_child()
