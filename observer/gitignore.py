@@ -56,7 +56,9 @@ class GitIgnore(Logger):
         else:
             matchers = tuple(self._make_matchers_from_file(path, gitignore))
         if path == self.root:
-            matchers += tuple(self._make_matchers_from_file(path, os.path.join(path, '.git', 'info', 'exclude')))
+            exclude = os.path.join(path, '.git', 'info', 'exclude')
+            if os.path.exists(exclude):
+                matchers += tuple(self._make_matchers_from_file(path, exclude))
         return matchers
     
     def _make_matchers_from_file(self, dir, gitignore):
