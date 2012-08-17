@@ -69,6 +69,9 @@ class DirObserver(Observer):
         if entry in self.observers:
             self.remove_observer(self.observers.pop(entry))
 
+    def dispatch(self):
+        for observer in self.observers.values():
+            observer.dispatch()
 
 class TreeObserver(threading.Thread, Logger):
     
