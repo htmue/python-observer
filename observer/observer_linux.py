@@ -20,7 +20,7 @@ class Observer(base.Observer):
         self._observers.append(observer)
         observer._wd = inotifyx.add_watch(
             self._fd, observer.dir,
-            inotifyx.IN_CREATE|inotifyx.IN_MOVE|inotifyx.IN_DELETE|inotifyx.IN_ATTRIB,
+            inotifyx.IN_CREATE|inotifyx.IN_MOVE|inotifyx.IN_DELETE|inotifyx.IN_ATTRIB|inotifyx.IN_CLOSE_WRITE,
         )
         self._wd[observer._wd] = observer
     
