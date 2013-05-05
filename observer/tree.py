@@ -11,33 +11,6 @@ from logger import Logger
 from observer import Observer
 
 
-class FileObserver(Observer):
-
-    def __init__(self, dir, filepattern, queue):
-        self.filepattern = filepattern
-        self.queue = queue
-        super(FileObserver, self).__init__(dir, '*', changes=True)
-        self.update_file_changes()
-
-    def check_entry(self, entry):
-        return self.filepattern.match(entry)
-
-    def enqueue(self, entry):
-        self.queue.put(os.path.join(self.dir, entry))
-
-    def on_create(self, entry):
-        self.log.debug('on_create: "%s"', entry)
-        self.enqueue(entry)
-
-    def on_change(self, entry):
-        self.log.debug('on_change: "%s"', entry)
-        self.enqueue(entry)
-
-    def on_delete(self, entry):
-        self.log.debug('on_delete: "%s"', entry)
-        self.enqueue(entry)
-
-
 class DirObserver(Observer):
 
     def __init__(self, dir, filepattern, ignore, queue):
@@ -45,29 +18,46 @@ class DirObserver(Observer):
         self.filepattern = filepattern
         self.ignore = ignore
         self.queue = queue
-        super(DirObserver, self).__init__(dir, '*')
-        observer = FileObserver(dir, filepattern, queue)
-        self.add_observer(observer)
-        self.observers[None] = observer
+        super(DirObserver, self).__init__(dir, '*', changes=True)
+        self.add_observer(self)
 
     def __del__(self):
         for observer in self.observers.values():
             self.remove_observer(observer)
 
+    def isdir(self, entry):
+        return os.path.isdir(os.path.join(self.dir, entry))
+
     def check_entry(self, entry):
         if os.path.isdir(entry):
-             return self.ignore is None or not self.ignore(entry)
+            return True if self.ignore is None else not self.ignore(entry)
+        else:
+            return self.filepattern.match(entry)
+
+    def enqueue(self, entry):
+        self.queue.put(os.path.join(self.dir, entry))
 
     def on_create(self, entry):
-        self.log.debug('on_create: "%s"', entry)
-        observer = DirObserver(os.path.join(self.dir, entry), self.filepattern, self.ignore, self.queue)
-        self.add_observer(observer)
-        self.observers[entry] = observer
+        self.log.debug('%s.on_create: "%s"', self, entry)
+        if self.isdir(entry):
+            self.log.debug('adding observer: %s', entry)
+            observer = DirObserver(os.path.join(self.dir, entry), self.filepattern, self.ignore, self.queue)
+            self.observers[entry] = observer
+        else:
+            self.enqueue(entry)
+
+    def on_change(self, entry):
+        self.log.debug('%s.on_change: "%s"', self, entry)
+        if not self.isdir(entry):
+            self.enqueue(entry)
 
     def on_delete(self, entry):
-        self.log.debug('on_delete: "%s"', entry)
-        if entry in self.observers:
-            self.remove_observer(self.observers.pop(entry))
+        self.log.debug('%s.on_delete: "%s"', self, entry)
+        if self.isdir(entry):
+            if entry in self.observers:
+                self.remove_observer(self.observers.pop(entry))
+        else:
+            self.enqueue(entry)
 
 
 class TreeObserver(threading.Thread, Logger):

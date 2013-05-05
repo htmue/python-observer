@@ -43,6 +43,8 @@ class Observer(Logger):
         else:
             self._check_type = os.path.isfile
         self.update()
+        if changes:
+            self.update_file_changes()
         for entry in self.entries:
             self.on_create(os.path.basename(entry))
     
@@ -77,7 +79,7 @@ class Observer(Logger):
         self.log.debug('update:entries:%s', self.entries)
     
     def update_file_changes(self):
-        self.checksums = dict((key, file_sha1(key).digest()) for key in self.entries)
+        self.checksums = dict((key, file_sha1(key).digest()) for key in self.entries if os.path.isfile(key))
     
     def dispatch(self):
         created, changed, deleted = self.changes()
